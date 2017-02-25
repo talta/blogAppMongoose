@@ -15,13 +15,34 @@ const app = express();
 
 
 app.get('/posts', (req, res) => {
-	res.json(BlogPosts.get());
-})
+	BlogPosts
+	.find()
+	.limit(10)
+	.exec()
+	.then(BlogPosts => {
+		res.json({
+			blogPosts: blogPosts.map(
+				(blogPosts) => blogPosts.apiRepr());
+		});
+	})
+	.catch(
+		err => {
+			console.log(error);
+			res.status(500).json({message: 'Internal Sever Error'});
+		});
+});
 
 
 app.get('/posts/:id', (req, res) =>{
-	res.json(BlogPosts[id].get());
-})
+	BlogPosts 
+		.findById(req.params.id)
+		.exec
+		.then(restaurant => res.json(restaurant.apiRepr()))
+		.catch(err => {
+			console.log(err);
+			res.status(500).json({message: 'Internal Server Error'});
+		});
+});
 
 app.post('/posts', (req, res) =>{
 	const requiredFields = ['title', 'content', 'author'];
@@ -33,9 +54,21 @@ app.post('/posts', (req, res) =>{
 			return res.status(400).send(message);
 		}
 	}
-	const  post  = BlogPosts.create(req.body.title, req.body.content, req.body.author);
-	res.status(201).json(post);
-})
+	BlogPosts
+		.create({
+			id: req.params.id,
+			title: req.body.title,
+			content: req.body.content,
+			author: req.body.author,
+			publishDate: req.body.publishDate
+		})
+		.then(
+			blogPosts => res.status(201).json(blogPosts.apiRepr())
+		.catch(err => {
+			console.log(err);
+			res.status(500).json({message: 'Internal Server Error'});
+		});
+});
 
 app.put('/posts/:id', (req, res) =>{
 	const requiredFields = ['title', 'content', 'author', 'publishDate'];
@@ -52,21 +85,31 @@ app.put('/posts/:id', (req, res) =>{
 		console.log(message);
 		return res.status(400).send(message);
 	}
-	console.log(`updating the \`${req.params.id} blog post.`);
-	const updatedPost = BlogPosts.update({
-		id: req.params.id,
-		title: req.body.title,
-		content: req.body.content,
-		author: req.body.author,
-		publishDate: req.body.publishDate
+	const toUpdate = {};
+	const updatableFields = ['title', 'content', 'author', 'publishDate'];
+
+	updatableFields.forEach(field => {
+		if(field in req.body){
+			toUpdate[field] =rep.body.field
+		}
 	});
-	res.status(204).json(updatedPost);
+	BlogPosts
+	.findIdAndUpdate(req.params.id, {$set: toUpdate});
+	.exec()
+	.then(blogPosts => res.status(204).end())
+	.catch(err => res.status(500).json({message: 'Internal Server Error'}));
 })
 
 app.delete('/posts:id', (req, res) => {
-	BlogPosts.delete(req.params.id);
-	console.log(`deleting the \`${req.params.id}.`)
-	res.status(204).end();
+	BlogPosts
+		.findByIdAndRemove(req.params.id)
+		.exec()
+		.then(restaurant => res.status(204).end())
+		.catch(err => res.status(500).json({message: 'Internal Server Error'}));
+
+	// BlogPosts.delete(req.params.id);
+	// console.log(`deleting the \`${req.params.id}.`)
+	// res.status(204).end();
 })
 
 
