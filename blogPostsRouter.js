@@ -36,7 +36,7 @@ app.get('/posts', (req, res) => {
 app.get('/posts/:id', (req, res) =>{
 	BlogPosts 
 		.findById(req.params.id)
-		.exec
+		.exec()
 		.then(restaurant => res.json(restaurant.apiRepr()))
 		.catch(err => {
 			console.log(err);
