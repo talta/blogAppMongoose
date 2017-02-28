@@ -9,7 +9,7 @@ const blogPostsRouter = require('./blogPostsRouter.js');
 const app = express();
 
 const {PORT, DATABASE_URL} = require('./config');
-const {Restaurant} = require('./models');
+const {Post} = require('./models');
 
 
 

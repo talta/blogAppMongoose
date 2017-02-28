@@ -8,21 +8,21 @@ const jsonParser = bodyParser.json();
 
 mongoose.Promise = global.Promise;
 
-const {BlogPosts} = require('./models');
+const {BlogPost} = require('./models');
 
 const app = express();
 
 
 
 app.get('/posts', (req, res) => {
-	BlogPosts
+	BlogPost
 	.find()
 	.limit(10)
 	.exec()
-	.then(BlogPosts => {
+	.then(blogpost => {
 		res.json({
-			blogPosts: blogPosts.map(
-				(blogPosts) => blogPosts.apiRepr());
+			BlogPosts: BlogPosts.map(
+				(blogpost) => blogpost.apiRepr());
 		});
 	})
 	.catch(
@@ -34,10 +34,10 @@ app.get('/posts', (req, res) => {
 
 
 app.get('/posts/:id', (req, res) =>{
-	BlogPosts 
+	BlogPost
 		.findById(req.params.id)
 		.exec()
-		.then(restaurant => res.json(restaurant.apiRepr()))
+		.then(blogpost => res.json(blogpost.apiRepr()))
 		.catch(err => {
 			console.log(err);
 			res.status(500).json({message: 'Internal Server Error'});
@@ -54,7 +54,7 @@ app.post('/posts', (req, res) =>{
 			return res.status(400).send(message);
 		}
 	}
-	BlogPosts
+	BlogPost
 		.create({
 			id: req.params.id,
 			title: req.body.title,
@@ -63,7 +63,7 @@ app.post('/posts', (req, res) =>{
 			publishDate: req.body.publishDate
 		})
 		.then(
-			blogPosts => res.status(201).json(blogPosts.apiRepr())
+			blogpost => res.status(201).json(Post.apiRepr())
 		.catch(err => {
 			console.log(err);
 			res.status(500).json({message: 'Internal Server Error'});
@@ -93,18 +93,18 @@ app.put('/posts/:id', (req, res) =>{
 			toUpdate[field] =rep.body.field
 		}
 	});
-	BlogPosts
+	BlogPost
 	.findIdAndUpdate(req.params.id, {$set: toUpdate});
 	.exec()
-	.then(blogPosts => res.status(204).end())
+	.then(blogpost => res.status(204).end())
 	.catch(err => res.status(500).json({message: 'Internal Server Error'}));
 })
 
 app.delete('/posts:id', (req, res) => {
-	BlogPosts
+	BlogPost
 		.findByIdAndRemove(req.params.id)
 		.exec()
-		.then(restaurant => res.status(204).end())
+		.then(blogpost => res.status(204).end())
 		.catch(err => res.status(500).json({message: 'Internal Server Error'}));
 
 	// BlogPosts.delete(req.params.id);
